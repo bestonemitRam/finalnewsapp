@@ -1,0 +1,96 @@
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
+import 'package:flutter/cupertino.dart';
+
+import 'package:share_plus/share_plus.dart';
+
+
+class FirebaseDynamicLinkService {
+ // GetStorage _storage = GetStorage();
+   
+  static String kUriPrefix = 'https://vlesocietyapp.page.link';
+   String kHomepageLink = '/homepage';
+   String kProductpageLink = '/productpage?id=24';
+
+  
+  static Future<String> buildDynamicLinks(String title, String image,
+      String docId, bool short, int type, String userId) async
+       {
+    String url = "https://vlesocietyapp.page.link/";
+     DynamicLinkParameters dynamicLinkParams = DynamicLinkParameters(
+      uriPrefix: kUriPrefix,
+      link: Uri.parse(
+          "https://www.google.com/refer?referral_id=${userId}&postId=${docId}"),
+      androidParameters: const AndroidParameters(
+        packageName: "com.vlesociety",
+        minimumVersion: 30,
+      ),
+
+/*      iosParameters: const IOSParameters(
+        bundleId: "com.example.app.ios",
+        appStoreId: "123456789",
+        minimumVersion: "1.0.1",
+      ),
+      googleAnalyticsParameters: const GoogleAnalyticsParameters(
+        source: "twitter",
+        medium: "social",
+        campaign: "example-promo",
+      ),*/
+      socialMetaTagParameters: SocialMetaTagParameters(
+          description: '', imageUrl: Uri.parse("$image"), title: title),
+    );
+
+    Uri url1;
+    if (short) {
+      final ShortDynamicLink shortDynamicLink =
+          await FirebaseDynamicLinks.instance.buildShortLink(dynamicLinkParams);
+      url1 = shortDynamicLink.shortUrl;
+    } else {
+      url1 = await FirebaseDynamicLinks.instance.buildLink(dynamicLinkParams);
+    }
+
+    final dynamicLink =
+        await FirebaseDynamicLinks.instance.buildShortLink(dynamicLinkParams);
+    String? desc = '${dynamicLink.shortUrl.toString()}';
+    if (type == 1) {
+      await Share.share(
+        desc,
+        subject: title,
+      );
+    } 
+    return url1.toString();
+  }
+
+  static Future<void> initDynamicLinks() async {
+  
+
+    final PendingDynamicLinkData? initialLink =
+        await FirebaseDynamicLinks.instance.getInitialLink();
+    if (initialLink != null) {
+      final Uri deepLink = initialLink.link;
+      print("dfjk${deepLink.path.toString()}");
+
+      var isRefer = deepLink.pathSegments.contains('refer');
+      if (isRefer) {
+        var referral_id = deepLink.queryParameters['referral_id'];
+        var postId = deepLink.queryParameters['postId'];
+        print(referral_id.toString());
+        print("djkfhjg" + postId.toString());
+        if (referral_id != null) {
+         
+        }
+      }
+    }
+
+    //handleMyLink(deeplink);
+  }
+
+  static Future<void> handleMyLink(Uri url) async {
+    List<String> sepeatedLink = [];
+
+    /// osama.link.page/Hellow --> osama.link.page and Hellow
+    sepeatedLink.addAll(url.path.split('/'));
+
+    print("The Token that i'm interesed in is ${sepeatedLink[1]}");
+    //  Get.to(()=>ProductDetailScreen(sepeatedLink[1]));
+  }
+}
