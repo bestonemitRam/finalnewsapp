@@ -7,6 +7,7 @@ import 'package:shortnews/view/uitl/apphelper.dart';
 
 import 'package:shortnews/view/video_functionality/screens/content_screen.dart';
 import 'package:shortnews/view_model/dashboard_contoller.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class HomePage extends StatelessWidget {
   final myController = Get.find<MyController>();
@@ -23,14 +24,6 @@ class HomePage extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              // Navigator.push(
-              //   context,
-              //   PageTransition(
-              //     type: PageTransitionType.rightToLeft,
-              //     duration: Duration(milliseconds: 700),
-              //     child: DashBoardScreenActivity(),
-              //   ),
-              // );
             },
           ),
           title: Center(

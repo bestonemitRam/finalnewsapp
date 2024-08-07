@@ -12,7 +12,7 @@ class Preferences with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(AppStringFile.USER_TOKEN, data.user_token);
     await prefs.setString(AppStringFile.USER_ID, data.user_id);
-    await prefs.setString(AppStringFile.USER_MOBILE, data.user_mobile);
+    await prefs.setString(AppStringFile.USER_EMAIL, data.user_email);
     await prefs.setString(AppStringFile.USER_ADDRESS, data.user_name);
     await prefs.setString(AppStringFile.USER_NAME, data.user_name);
 
@@ -25,7 +25,7 @@ class Preferences with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(AppStringFile.USER_ID, '');
     await prefs.setString(AppStringFile.USER_TOKEN, '');
-    await prefs.setString(AppStringFile.USER_MOBILE, '');
+    await prefs.setString(AppStringFile.USER_EMAIL, '');
     await prefs.setString(AppStringFile.USER_ADDRESS, '');
     await prefs.setString(AppStringFile.USER_NAME, '');
 

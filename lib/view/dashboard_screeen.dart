@@ -179,6 +179,8 @@ class _DashBoardScreenState extends State<DashBoardScreenActivity> {
 
   @override
   Widget build(BuildContext context) {
+    print("${AppHelper.themelight}");
+
     return Consumer<DarkThemeProvider>(
         builder: (context, darkThemeProvider, child) {
       return AdvancedDrawer(
@@ -362,7 +364,8 @@ class _DashBoardScreenState extends State<DashBoardScreenActivity> {
                                 myController.isclick.value = false;
 
                                 return InkWell(
-                                  onTap: () {
+                                  onTap: ()
+                                   {
                                     showSimpleSnackbar(context, item);
                                   },
                                   child: Padding(

@@ -51,9 +51,7 @@ final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 @pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  
-}
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {}
 
 final FlutterTts flutterTts = FlutterTts();
 
@@ -194,6 +192,8 @@ class _MyAppState extends State<MyApp> {
 
     Preferences preferences = Preferences();
     AppStringFile.USER_ID = await preferences.getUserId();
+
+    print("check userId  ${AppStringFile.USER_ID}");
 
     super.didChangeDependencies();
   }

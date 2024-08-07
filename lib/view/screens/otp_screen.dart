@@ -190,12 +190,12 @@ class _OTPScreenState extends State<OTPScreen> {
                                         .signInWithCredential(cred);
                                     Navigator.pop(context);
 
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => LoginByConatact(
-                                              mobileNumber: widget.mobileNo),
-                                        ));
+                                    // Navigator.push(
+                                    //     context,
+                                    //     MaterialPageRoute(
+                                    //       builder: (context) => LoginByConatact(
+                                    //           mobileNumber: widget.mobileNo),
+                                    //     ));
                                   } catch (e) {
                                     log(e.toString());
                                   }

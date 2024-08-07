@@ -20,14 +20,21 @@ import 'package:shortnews/view/uitl/app_string.dart';
 import 'package:shortnews/view/uitl/apphelper.dart';
 import 'package:shortnews/view/uitl/appimage.dart';
 import 'package:shortnews/view/uitl/appstyle.dart';
+import 'package:shortnews/view/uitl/service/FirebaseServices.dart';
 import 'package:shortnews/view/video_functionality/screens/app_privacy.dart';
 import 'package:shortnews/view/video_functionality/screens/contact_information.dart';
 import 'package:shortnews/view/video_functionality/screens/home_page.dart';
 import 'package:shortnews/view_model/dashboard_contoller.dart';
 import 'package:shortnews/view_model/provider/ThemeProvider.dart';
 
-class MenuBarScreen extends StatelessWidget {
+class MenuBarScreen extends StatefulWidget {
   const MenuBarScreen({Key? key}) : super(key: key);
+
+  @override
+  State<MenuBarScreen> createState() => _MenuBarScreenState();
+}
+
+class _MenuBarScreenState extends State<MenuBarScreen> {
   @override
   Widget build(BuildContext context) {
     return Consumer<DarkThemeProvider>(
@@ -66,9 +73,7 @@ class MenuBarScreen extends StatelessWidget {
                             ),
                           ),
                         )),
-                    // SizedBox(
-                    //   height: 1.h,
-                    // ),
+
                     ListTile(
                       onTap: () {
                         Navigator.pop(context);
@@ -334,11 +339,14 @@ class MenuBarScreen extends StatelessWidget {
                           )
                         : ListTile(
                             onTap: () async {
-                              await FirebaseAuth.instance.signOut();
+                              await FirebaseServices().googleSignOut();
 
                               Preferences preferences = Preferences();
                               preferences.clearPrefs();
-                              AppStringFile.USER_ID = '';
+                              setState(() {
+                                AppStringFile.USER_ID = "";
+                              });
+
                               Fluttertoast.showToast(
                                   msg: "Logout successfully!",
                                   toastLength: Toast.LENGTH_SHORT,

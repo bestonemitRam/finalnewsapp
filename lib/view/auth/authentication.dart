@@ -15,11 +15,12 @@ import 'package:shortnews/view/uitl/app_string.dart';
 import 'package:shortnews/view/uitl/custom_alertDialog.dart';
 
 class AuthController extends GetxController {
-  TextEditingController mobileController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController cityController = TextEditingController();
   final TextEditingController stateController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -27,9 +28,8 @@ class AuthController extends GetxController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   var isLoading = false.obs;
-  bool validation()
-                                                                                              {
-    if (mobileController.text.isEmpty) {
+  bool validation() {
+    if (emailController.text.isEmpty) {
       Fluttertoast.showToast(msg: 'Enter Phone Number');
       return false;
     }
@@ -38,47 +38,119 @@ class AuthController extends GetxController {
 
   Future<void> saveUserDetails(BuildContext context) async {
     var fcm = await FirebaseMessaging.instance.getToken();
-    User? user = _auth.currentUser;
+    // User? user = _auth.currentUser;
+    try {
+      final UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+      );
 
-    if (user != null) {
-      await _firestore.collection('users').doc(user?.uid).set({
-        'name': nameController.text,
-        'address': addressController.text,
-        'city': cityController.text,
-        'state': stateController.text,
-        'phone': user?.phoneNumber,
-        'user_id': user?.uid
-      });
+      if (userCredential.user?.email != null) {
+        await _firestore.collection('users').doc(userCredential.user!.uid).set({
+          'name': nameController.text,
+          'address': addressController.text,
+          'city': cityController.text,
+          'state': stateController.text,
+          'email': userCredential.user!.email,
+          'password': passwordController.text,
+          'user_id': userCredential.user?.uid
+        });
+        isLoading.value = false;
+
+        Preferences preferences = Preferences();
+        var userdata = UserData(
+            user_id: userCredential.user?.uid,
+            user_name: nameController.text,
+            user_email: userCredential.user?.email,
+            user_token: fcm);
+        AppStringFile.USER_ID = userCredential.user!.uid.toString();
+
+        preferences.saveUser(userdata);
+
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          PageTransition(
+            type: PageTransitionType.rightToLeft,
+            duration: Duration(milliseconds: 700),
+            child: DashBoardScreenActivity(
+              type: '',
+              notification: '',
+            ),
+          ),
+        );
+      } else {
+        isLoading.value = false;
+        Fluttertoast.showToast(
+            msg: "Something went wrong!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            timeInSecForIosWeb: 1,
+            fontSize: 16.0);
+      }
+    } catch (e) {
       isLoading.value = false;
-
-      Preferences preferences = Preferences();
-      var userdata = UserData(
-          user_id: user?.uid,
-          user_name: nameController.text,
-          user_mobile: user?.phoneNumber,
-          user_token: fcm);
-      AppStringFile.USER_ID = user!.uid.toString();
-   
-     preferences.saveUser(userdata);
       Fluttertoast.showToast(
-          msg: "Register successfully!",
+          msg: "This E-mail already register",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 1,
           fontSize: 16.0);
-      Navigator.pop(context);
-      Navigator.push(
-        context,
-        PageTransition(
-          type: PageTransitionType.rightToLeft,
-          duration: Duration(milliseconds: 700),
-          child: DashBoardScreenActivity(type: '',notification: '',),
-        ),
-      );
-    } else {
+    }
+  }
+
+  Future<void> createDetails(BuildContext context) async {
+    var fcm = await FirebaseMessaging.instance.getToken();
+    User? user = _auth.currentUser;
+    try {
+      if (user != null) {
+        await _firestore.collection('users').doc(user?.uid).set({
+          'name': nameController.text,
+          'address': addressController.text,
+          'city': cityController.text,
+          'state': stateController.text,
+          'email': user?.email,
+          'password': passwordController.text,
+          'user_id': user?.uid
+        });
+        isLoading.value = false;
+
+        Preferences preferences = Preferences();
+        var userdata = UserData(
+            user_id: user?.uid,
+            user_name: nameController.text,
+            user_email: user?.email,
+            user_token: fcm);
+        AppStringFile.USER_ID = user!.uid.toString();
+
+        preferences.saveUser(userdata);
+
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          PageTransition(
+            type: PageTransitionType.rightToLeft,
+            duration: Duration(milliseconds: 700),
+            child: DashBoardScreenActivity(
+              type: '',
+              notification: '',
+            ),
+          ),
+        );
+      } else {
+        isLoading.value = false;
+        Fluttertoast.showToast(
+            msg: "Something went wrong!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            timeInSecForIosWeb: 1,
+            fontSize: 16.0);
+      }
+    } catch (e) {
       isLoading.value = false;
       Fluttertoast.showToast(
-          msg: "Something went wrong!",
+          msg: "This E-mail already register",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 1,

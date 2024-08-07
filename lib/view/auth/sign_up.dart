@@ -11,8 +11,10 @@ import 'package:shortnews/view/uitl/appstyle.dart';
 import 'package:shortnews/view/uitl/my_progress_bar.dart';
 
 class LoginByConatact extends StatefulWidget {
-  final String mobileNumber;
-  const LoginByConatact({super.key, required this.mobileNumber});
+  String? name;
+  String? email;
+  final int type;
+  LoginByConatact({super.key, this.name, this.email, required this.type});
 
   @override
   State<LoginByConatact> createState() => _MyWidgetState();
@@ -23,9 +25,9 @@ class _MyWidgetState extends State<LoginByConatact> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    controller.mobileController.text = widget.mobileNumber;
+    controller.emailController.text = widget.email!;
+    controller.nameController.text = widget.name!;
   }
 
   @override
@@ -44,7 +46,7 @@ class _MyWidgetState extends State<LoginByConatact> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           leading: InkWell(
-            child: Icon(
+            child: const Icon(
               Icons.arrow_back_ios,
               color: Colors.white,
             ),
@@ -54,7 +56,10 @@ class _MyWidgetState extends State<LoginByConatact> {
                 PageTransition(
                   type: PageTransitionType.rightToLeft,
                   duration: Duration(milliseconds: 700),
-                  child: DashBoardScreenActivity(type: '',notification: '',),
+                  child: DashBoardScreenActivity(
+                    type: '',
+                    notification: '',
+                  ),
                 ),
               );
             },
@@ -89,8 +94,8 @@ class _MyWidgetState extends State<LoginByConatact> {
                           Image.asset(
                             AppImages.welcomescreenillimage,
                             fit: BoxFit.cover,
-                            width: 33.w,
-                            height: 16.h,
+                            width: 20.w,
+                            height: 10.h,
                           ),
                           SizedBox(height: 0.h),
                           TextFormField(
@@ -105,15 +110,25 @@ class _MyWidgetState extends State<LoginByConatact> {
                                 InputDecoration(labelText: 'Enter Name'),
                           ),
                           TextFormField(
-                            controller: controller.mobileController,
+                            controller: controller.emailController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your mobile number';
+                                return 'Please enter your Email number';
                               }
                               return null;
                             },
                             decoration: InputDecoration(
-                                labelText: 'Enter Mobile number'),
+                                labelText: 'Enter email number'),
+                          ),
+                          TextFormField(
+                            controller: controller.passwordController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your password';
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(labelText: 'password'),
                           ),
                           TextFormField(
                             controller: controller.addressController,
@@ -155,10 +170,13 @@ class _MyWidgetState extends State<LoginByConatact> {
                                               AppColors.primarycolor)),
                                   onPressed: () {
                                     if (controller.formKey.currentState!
-                                        .validate()) 
-                                        {
+                                        .validate()) {
                                       controller.isLoading.value = true;
-                                      controller.saveUserDetails(context);
+                                      if (widget.type == 1) {
+                                        controller.createDetails(context);
+                                      } else {
+                                        controller.saveUserDetails(context);
+                                      }
                                     }
                                   },
                                   child: SizedBox(

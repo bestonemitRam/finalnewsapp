@@ -71,6 +71,8 @@ dependencies:
   app_settings: ^5.1.1
   skeletonizer: ^1.4.1+1
   skeleton_loader: ^2.0.0+4
+  google_sign_in: ^6.2.1
+  font_awesome_flutter: ^10.1.0
   
   
 

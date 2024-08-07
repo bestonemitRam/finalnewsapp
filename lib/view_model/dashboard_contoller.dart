@@ -3,16 +3,20 @@ import 'dart:convert';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shortnews/datastore/preferences.dart';
 import 'package:shortnews/main.dart';
 import 'package:shortnews/model/dashboard_model.dart';
 import 'package:shortnews/model/video_model.dart';
+import 'package:shortnews/view/uitl/app_string.dart';
 import 'package:shortnews/view/uitl/apphelper.dart';
+import 'package:shortnews/view/uitl/service/FirebaseServices.dart';
 import 'package:shortnews/view_model/data_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -43,7 +47,6 @@ class MyController extends GetxController {
   @override
   void onInit() {
     AppHelper.language = sharedPref.getString("SelectedLanguageCode");
-    
 
     super.onInit();
   }
@@ -124,5 +127,25 @@ class MyController extends GetxController {
       myData.value =
           jsonList.map((json) => DashBoardModel.fromJson(json)).toList();
     }
+  }
+
+  var islogOut = false.obs;
+
+  Future<void> logOut() async {
+    islogOut.value = true;
+    await FirebaseServices().googleSignOut();
+
+    Preferences preferences = Preferences();
+    preferences.clearPrefs();
+    AppStringFile.USER_ID = '';
+
+    islogOut.value = false;
+
+    Fluttertoast.showToast(
+        msg: "Logout successfully!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1,
+        fontSize: 16.0);
   }
 }

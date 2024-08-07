@@ -26,7 +26,7 @@ class AppStringFile {
   }
 
   static String USER_ID = '';
-  static String USER_MOBILE = 'USER_MOBILE';
+  static String USER_EMAIL = 'USER_EMAIL';
   static String USER_ADDRESS = "USER_ADDRESS";
   static String USER_TOKEN = "USER_TOKEN";
   static String USER_NAME = "USER_NAME";
