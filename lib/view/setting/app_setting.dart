@@ -39,17 +39,7 @@ class _MyWidgetState extends State<AppSetting> {
             color: AppHelper.themelight ? Colors.white : Colors.black,
           ),
           onTap: () {
-            Navigator.push(
-              context,
-              PageTransition(
-                type: PageTransitionType.rightToLeft,
-                duration: Duration(milliseconds: 700),
-                child: DashBoardScreenActivity(
-                  type: '',
-                  notification: '',
-                ),
-              ),
-            );
+            Navigator.pop(context);
           },
         ),
         title: Center(

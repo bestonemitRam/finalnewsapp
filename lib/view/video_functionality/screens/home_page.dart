@@ -42,7 +42,8 @@ class HomePage extends StatelessWidget {
                 child: Center(child: CircularProgressIndicator()));
           } else {
             return Swiper(
-              itemBuilder: (BuildContext context, int index) {
+              itemBuilder: (BuildContext context, int index)
+               {
                 return ContentScreen(
                     src: myController.videoModel.value[index].video_url
                         .toString(),
@@ -51,8 +52,10 @@ class HomePage extends StatelessWidget {
               },
               itemCount: myController.videoModel.value.length,
               scrollDirection: Axis.vertical,
-              onIndexChanged: (int index) {
-                if (index == myController.videoModel.length - 1) {
+              onIndexChanged: (int index) 
+              {
+                if (index == myController.videoModel.length - 1)
+                 {
                   myController.loadMoreVideo();
                 }
               },

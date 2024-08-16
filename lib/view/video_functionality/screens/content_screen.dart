@@ -1,11 +1,12 @@
+import 'dart:io';
+
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shortnews/view/video_functionality/screens/like_icon.dart';
 import 'package:shortnews/view/video_functionality/screens/options_screen.dart';
-
 import 'package:video_player/video_player.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class ContentScreen extends StatefulWidget {
   final String? src;
@@ -24,15 +25,26 @@ class _ContentScreenState extends State<ContentScreen> {
   bool _isMuted = true;
   bool _isAudioOn = true;
   bool showButton = false;
+
   @override
   void initState() {
     super.initState();
     initializePlayer();
   }
 
-  Future initializePlayer() async {
-    _videoPlayerController = VideoPlayerController.network(widget.src!);
-    await Future.wait([_videoPlayerController.initialize()]);
+  Future<void> initializePlayer() async {
+    // Preload and cache the video
+    final fileInfo = await DefaultCacheManager().getFileFromCache(widget.src!);
+    File videoFile;
+
+    if (fileInfo != null && fileInfo.file != null) {
+      videoFile = fileInfo.file;
+    } else {
+      videoFile = await DefaultCacheManager().getSingleFile(widget.src!);
+    }
+
+    _videoPlayerController = VideoPlayerController.file(videoFile);
+    await _videoPlayerController.initialize();
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController,
       autoPlay: true,
@@ -46,12 +58,13 @@ class _ContentScreenState extends State<ContentScreen> {
   @override
   void dispose() {
     _videoPlayerController.dispose();
-    _chewieController!.dispose();
+    _chewieController?.dispose();
     super.dispose();
   }
 
   void _toggleAudio() {
     setState(() {
+      print("fjhfjghkjf  ${_isAudioOn}");
       _isAudioOn = !_isAudioOn;
       if (_isAudioOn) {
         _videoPlayerController.setVolume(1.0);
@@ -70,35 +83,27 @@ class _ContentScreenState extends State<ContentScreen> {
         _chewieController != null &&
                 _chewieController!.videoPlayerController.value.isInitialized
             ? GestureDetector(
-                onTap: () {
-                  _toggleAudio();
-                },
-              
-                child: Chewie(
-                  controller: _chewieController!,
-                ),
+                onTap: _toggleAudio,
+                child: Chewie(controller: _chewieController!),
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 10),
-                  Text('Loading...')
+                  Text('Loading...'),
                 ],
               ),
         if (!_isAudioOn)
           Positioned(
             top: 50.h,
             child: InkWell(
-              onTap: () {
-                _toggleAudio();
-              },
+              onTap: _toggleAudio,
               child: Container(
                 decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(
-                      20,
-                    )),
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Icon(
@@ -110,7 +115,7 @@ class _ContentScreenState extends State<ContentScreen> {
               ),
             ),
           ),
-        OptionsScreen(widget.title!)
+        OptionsScreen(widget.title!),
       ],
     );
   }

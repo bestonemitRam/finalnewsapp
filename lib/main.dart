@@ -1,21 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/get_instance.dart';
-import 'package:get/get_navigation/get_navigation.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
-
 import 'package:hexcolor/hexcolor.dart';
 import 'package:in_app_notification/in_app_notification.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -28,21 +18,16 @@ import 'package:shortnews/datastore/preferences.dart';
 import 'package:shortnews/localization/locale_constants.dart';
 import 'package:shortnews/localization/localizations_delegate.dart';
 import 'package:shortnews/view/dashboard_screeen.dart';
-
 import 'package:shortnews/view/page_routes/route_generate.dart';
 import 'package:shortnews/view/page_routes/routes.dart';
 import 'package:shortnews/view/uitl/app_string.dart';
 import 'package:shortnews/view/uitl/apphelper.dart';
 import 'package:shortnews/view/uitl/navigationservice.dart';
 import 'package:shortnews/view/uitl/service/FirebaseNotification.dart';
-import 'package:shortnews/view/uitl/service/notification_controller.dart';
-
 import 'package:shortnews/view/uitl/theme/dark_theme.dart';
 import 'package:shortnews/view/uitl/theme/light_theme.dart';
-import 'package:shortnews/view_model/dashboard_contoller.dart';
 import 'package:shortnews/view_model/provider/ThemeProvider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:translator/translator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 late SharedPreferences sharedPref;
@@ -63,30 +48,30 @@ void _initializeTts() {
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp();
+ await Firebase.initializeApp();
   _initializeTts();
-  sharedPref = await SharedPreferences.getInstance();
+ 
 
-  await Firebase.initializeApp(
-    name: 'shortnews',
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // await Firebase.initializeApp(
+  //   name: 'shortnews',
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
   _firebaseMessaging.subscribeToTopic('shotnews');
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  var status = await Permission.ignoreBatteryOptimizations.status;
-  if (!status.isGranted) {
-    var status = await Permission.ignoreBatteryOptimizations.request();
-    if (status.isGranted) {
-      debugPrint("Good, all your permission are granted, do some stuff");
-    } else {
-      debugPrint("Do stuff according to this permission was rejected");
-    }
-  }
+  // var status = await Permission.ignoreBatteryOptimizations.status;
+  // if (!status.isGranted) {
+  //   var status = await Permission.ignoreBatteryOptimizations.request();
+  //   if (status.isGranted) {
+  //     debugPrint("Good, all your permission are granted, do some stuff");
+  //   } else {
+  //     debugPrint("Do stuff according to this permission was rejected");
+  //   }
+  // }
 
-  var fcm = await FirebaseMessaging.instance.getToken();
+  
+ 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -99,6 +84,7 @@ main() async {
 
 Future<void> allFunctions() async {
   sharedPref = await SharedPreferences.getInstance();
+ 
 
   AwesomeNotifications().initialize(
       'resource://drawable/app_icon',
@@ -193,7 +179,7 @@ class _MyAppState extends State<MyApp> {
     Preferences preferences = Preferences();
     AppStringFile.USER_ID = await preferences.getUserId();
 
-    print("check userId  ${AppStringFile.USER_ID}");
+   
 
     super.didChangeDependencies();
   }
@@ -246,8 +232,12 @@ class _MyAppState extends State<MyApp> {
                 title: 'ShoTnews',
                 debugShowCheckedModeBanner: false,
                 locale: _locale,
-                initialRoute: Routes.splashScreen,
-                onGenerateRoute: RouteGenerator.generateRoute,
+                home: DashBoardScreenActivity(
+                  notification: '',
+                  type: '',
+                ) ,
+                // initialRoute: DashBoardScreenActivity,
+                // onGenerateRoute: RouteGenerator.generateRoute,
                 theme: value.darkTheme ? lighttheme : darktheme,
                 supportedLocales: [
                   Locale('en', ''), // english

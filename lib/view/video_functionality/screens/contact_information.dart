@@ -24,7 +24,7 @@ class _ContactInformationState extends State<ContactInformation> {
               color: AppHelper.themelight ? Colors.white : Colors.black,
             ),
             onTap: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 PageTransition(
                   type: PageTransitionType.rightToLeft,

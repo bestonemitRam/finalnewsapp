@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shortnews/datastore/preferences.dart';
 import 'package:shortnews/main.dart';
 import 'package:shortnews/model/dashboard_model.dart';
+import 'package:shortnews/model/newsType.dart';
 import 'package:shortnews/model/video_model.dart';
 import 'package:shortnews/view/uitl/app_string.dart';
 import 'package:shortnews/view/uitl/apphelper.dart';
@@ -25,6 +26,9 @@ class MyController extends GetxController {
   final DataService _dataService = DataService();
   var myData = <DashBoardModel>[].obs;
   var videoModel = <VideoModel>[].obs;
+  var newsType = <NewsType>[].obs;
+    var newsTypelocal = <NewsType>[].obs;
+  //newstype
 
   var internet = false.obs;
   var light = true.obs;
@@ -40,14 +44,23 @@ class MyController extends GetxController {
     {"icon": Icons.real_estate_agent_rounded, "type": "Entertainment"},
     {"icon": Icons.sports_baseball_outlined, "type": "Sports"},
   ];
-  var isclick = false.obs;
+
   var datafound = false.obs;
-  var pageload = false.obs;
 
   @override
   void onInit() {
     AppHelper.language = sharedPref.getString("SelectedLanguageCode");
 
+    final jsonString = sharedPref.getString('newsType');
+    if (jsonString != null)
+     {
+    ;
+      final jsonList = jsonDecode(jsonString) as List<dynamic>;
+      newsTypelocal.value = jsonList.map((json) => NewsType.fromJson(json)).toList();
+    
+    }
+
+    loadNewstype();
     super.onInit();
   }
 
@@ -147,5 +160,24 @@ class MyController extends GetxController {
         gravity: ToastGravity.TOP,
         timeInSecForIosWeb: 1,
         fontSize: 16.0);
+  }
+
+  void loadNewstype() async {
+    CollectionReference myCollection =
+        FirebaseFirestore.instance.collection('newstype');
+    QuerySnapshot snapshot = await myCollection.get();
+
+    if (snapshot.docs.isNotEmpty) {
+      newsType.value = snapshot.docs
+          .map((doc) => NewsType(
+                img: doc['img'],
+                title: doc['title'],
+              ))
+          .toList();
+
+      final jsonString =
+          jsonEncode(newsType.map((model) => model.toJson()).toList());
+      await sharedPref.setString('newsType', jsonString);
+    } else {}
   }
 }

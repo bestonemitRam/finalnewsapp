@@ -20,8 +20,7 @@ class _MyWidgetState extends State<NotificationScreen> {
   final MyController myController = Get.put(MyController());
 
   @override
-  void initState() 
-  {
+  void initState() {
     myController.fetchParticularData(widget.notification);
 
     super.initState();
@@ -29,8 +28,7 @@ class _MyWidgetState extends State<NotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return 
-    Scaffold(
+    return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           leading: InkWell(
@@ -38,21 +36,13 @@ class _MyWidgetState extends State<NotificationScreen> {
               Icons.arrow_back_ios,
               color: AppHelper.themelight ? Colors.white : Colors.black,
             ),
-            onTap: ()
-             {
-              Navigator.push(
-                context,
-                PageTransition(
-                  type: PageTransitionType.rightToLeft,
-                  duration: Duration(milliseconds: 700),
-                  child: DashBoardScreenActivity(notification: '',type: '',),
-                ),
-              );
+            onTap: () {
+              Navigator.pop(context);
             },
           ),
           title: Center(
             child: Text(
-              "Top Notifications",
+              "Notifications",
               style: TextStyle(
                 color: AppHelper.themelight ? Colors.white : Colors.black,
               ),
@@ -60,32 +50,25 @@ class _MyWidgetState extends State<NotificationScreen> {
           ),
         ),
         body: Obx(() {
-         
-          
-            return 
-            Skeletonizer(
+          return Skeletonizer(
             enabled: !myController.datafound.value,
             enableSwitchAnimation: true,
-               child: ListView.builder(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                  primary: false,
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: myController.myData.length,
-                  itemBuilder: (ctx, index) {
-                    var item = myController.myData[index];
-               
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: ListUi(item),
-                    );
-                  }),
-             );
-          
-        }
-        )
-        );
-  
+            child: ListView.builder(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                primary: false,
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: myController.myData.length,
+                itemBuilder: (ctx, index) {
+                  var item = myController.myData[index];
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: ListUi(item),
+                  );
+                }),
+          );
+        }));
   }
 }

@@ -57,7 +57,7 @@ class Preferences with ChangeNotifier {
   Future<String> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
 
-    print("kjhklfjkgh  ${prefs.getString(AppStringFile.USER_ID)}");
+     print("check userId  ${prefs.getString(AppStringFile.USER_ID)}");
     return prefs.getString(AppStringFile.USER_ID) ?? '';
   }
 

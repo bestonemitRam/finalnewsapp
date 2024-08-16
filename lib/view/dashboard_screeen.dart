@@ -30,6 +30,8 @@ import 'package:shortnews/view/uitl/app_string.dart';
 import 'package:shortnews/view/uitl/apphelper.dart';
 import 'package:shortnews/view/uitl/appimage.dart';
 import 'package:shortnews/view/uitl/appstyle.dart';
+import 'package:shortnews/view/video_functionality/screens/home_page.dart';
+import 'package:shortnews/view/video_functionality/screens/left_screeen.dart';
 import 'package:shortnews/view_model/dashboard_contoller.dart';
 import 'package:shortnews/view_model/provider/ThemeProvider.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
@@ -51,7 +53,6 @@ class DashBoardScreenActivity extends StatefulWidget {
 }
 
 class _DashBoardScreenState extends State<DashBoardScreenActivity> {
-  DarkThemeProvider foodcategoriesProvider = DarkThemeProvider();
   final _advancedDrawerController = AdvancedDrawerController();
   final MyController myController = Get.put(MyController());
   String _topModalData = "";
@@ -111,7 +112,6 @@ class _DashBoardScreenState extends State<DashBoardScreenActivity> {
                   ),
                   InkWell(
                     onTap: () async {
-                      print("dsfgdsfgdfg  ${AppStringFile.USER_ID}");
                       if (AppStringFile.USER_ID == " ") {
                         final jsonString = jsonEncode(item.toJson());
                         bookmarkList.add(jsonString);
@@ -171,7 +171,6 @@ class _DashBoardScreenState extends State<DashBoardScreenActivity> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _stop();
 
     super.dispose();
@@ -179,77 +178,62 @@ class _DashBoardScreenState extends State<DashBoardScreenActivity> {
 
   @override
   Widget build(BuildContext context) {
-    print("${AppHelper.themelight}");
+    return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.transparent, Colors.blueGrey.withOpacity(0.2)],
+          ),
+        ),
+        child: RepaintBoundary(
+          key: widget1RenderKey,
+          child: Scaffold(
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+            drawer: Container(),
+            bottomNavigationBar: Padding(
+              padding: EdgeInsets.only(right: 15, left: 15),
+              child: Obx(() {
+                final newsList = myController.newsTypelocal.isNotEmpty
+                    ? myController.newsTypelocal
+                    : myController.newsType;
 
-    return Consumer<DarkThemeProvider>(
-        builder: (context, darkThemeProvider, child) {
-      return AdvancedDrawer(
-          backdrop: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Colors.transparent, Colors.blueGrey.withOpacity(0.2)],
-              ),
-            ),
-          ),
-          controller: _advancedDrawerController,
-          animationCurve: Curves.easeInOut,
-          animationDuration: const Duration(milliseconds: 300),
-          animateChildDecoration: true,
-          rtlOpening: false,
-          // openScale: 1.0,
-          disabledGestures: false,
-          childDecoration: const BoxDecoration(
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 0.0,
-              ),
-            ],
-            borderRadius: BorderRadius.all(Radius.circular(16)),
-          ),
-          drawer: MenuBarScreen(),
-          child: RepaintBoundary(
-            key: widget1RenderKey,
-            child: Scaffold(
-              backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-              drawer: Container(),
-              bottomNavigationBar: Padding(
-                padding: EdgeInsets.only(right: 15, left: 15),
-                child: Container(
-                    height: 9.6.h,
+                return Container(
+                    height: 9.h,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: myController.list.length,
+                      itemCount: newsList.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: EdgeInsets.all(3.0),
                           child: InkWell(
                             onTap: () {
                               myController.fetchParticularData(
-                                  myController.list[index]['type'].toString());
+                                  newsList[index].title.toString());
                             },
                             child: Card(
                               child: Padding(
                                 padding: const EdgeInsets.only(
-                                    left: 10, right: 10, top: 10),
+                                    left: 10, right: 10, top: 0),
                                 child: Column(
                                   children: [
-                                    Icon(
-                                      myController.list[index]['icon'],
-                                      size: 7.w,
-                                      color: AppHelper.themelight
-                                          ? AppColors.primarycolorYellow
-                                          : AppColors.blackColor,
+                                    Container(
+                                      height: 3.5.h,
+                                      child: Image(
+                                        image: NetworkImage(
+                                          newsList[index].img,
+                                        ),
+                                        width: 8.w,
+                                        height: 5.h,
+                                        color: AppHelper.themelight
+                                            ? AppColors.primarycolorYellow
+                                            : AppColors.blackColor,
+                                      ),
                                     ),
                                     Center(
                                         child: Text(
                                       textAlign: TextAlign.center,
-                                      myController.list[index]['type']
-                                          .toString(),
+                                      newsList[index].title.toString(),
                                       style: AppHelper.themelight
                                           ? AppStyle.bodytext_white
                                               .copyWith(fontSize: 10)
@@ -263,534 +247,530 @@ class _DashBoardScreenState extends State<DashBoardScreenActivity> {
                           ),
                         );
                       },
-                    )),
-              ),
-              appBar: AppBar(
-                toolbarHeight: 3.5.h,
-                backgroundColor: Colors.transparent,
-                actions: [
-                  InkWell(
-                    onTap: () async {
-                      List<String> imagePaths = [];
-                      final RenderBox box =
-                          context.findRenderObject() as RenderBox;
-                      return Future.delayed(Duration(milliseconds: 20),
-                          () async {
-                        RenderRepaintBoundary? boundary =
-                            widget1RenderKey.currentContext!.findRenderObject()
-                                as RenderRepaintBoundary?;
-                        ui.Image image = await boundary!.toImage();
-                        final directory =
-                            (await getApplicationDocumentsDirectory()).path;
-                        ByteData? byteData = await image.toByteData(
-                            format: ui.ImageByteFormat.png);
-                        Uint8List pngBytes = byteData!.buffer.asUint8List();
-                        File imgFile = File('$directory/screenshot.png');
-                        imagePaths.add(imgFile.path);
-                        imgFile.writeAsBytes(pngBytes).then((value) async {
-                          //FirebaseDynamicLinkService.buildDynamicLinks();
+                    ));
+              }),
+            ),
+            appBar: AppBar(
+              toolbarHeight: 3.5.h,
+              backgroundColor: Colors.transparent,
+              actions: [
+                InkWell(
+                  onTap: () async {
+                    List<String> imagePaths = [];
+                    final RenderBox box =
+                        context.findRenderObject() as RenderBox;
+                    return Future.delayed(Duration(milliseconds: 20), () async {
+                      RenderRepaintBoundary? boundary =
+                          widget1RenderKey.currentContext!.findRenderObject()
+                              as RenderRepaintBoundary?;
+                      ui.Image image = await boundary!.toImage();
+                      final directory =
+                          (await getApplicationDocumentsDirectory()).path;
+                      ByteData? byteData = await image.toByteData(
+                          format: ui.ImageByteFormat.png);
+                      Uint8List pngBytes = byteData!.buffer.asUint8List();
+                      File imgFile = File('$directory/screenshot.png');
+                      imagePaths.add(imgFile.path);
+                      imgFile.writeAsBytes(pngBytes).then((value) async {
+                        //FirebaseDynamicLinkService.buildDynamicLinks();
 
-                          await Share.shareFiles(imagePaths,
-                              subject: 'Share',
-                              text:
-                                  'https://play.google.com/store/apps/details?id=com.app.shotNews',
-                              sharePositionOrigin:
-                                  box.localToGlobal(Offset.zero) & box.size);
-                        }).catchError((onError) {
-                          print(onError);
-                        });
+                        await Share.shareFiles(imagePaths,
+                            subject: 'Share',
+                            text:
+                                'https://play.google.com/store/apps/details?id=com.app.shotNews',
+                            sharePositionOrigin:
+                                box.localToGlobal(Offset.zero) & box.size);
+                      }).catchError((onError) {
+                        print(onError);
                       });
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(
-                        Icons.share_outlined,
-                        size: 5.w,
-                        color:
-                            AppHelper.themelight ? Colors.white : Colors.black,
-                      ),
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(
+                      Icons.share_outlined,
+                      size: 5.w,
+                      color: AppHelper.themelight ? Colors.white : Colors.black,
                     ),
                   ),
-                ],
-                leading: IconButton(
-                    onPressed: _handleMenuButtonPressed,
-                    icon: ValueListenableBuilder<AdvancedDrawerValue>(
-                      valueListenable: _advancedDrawerController,
-                      builder: (_, value, __) {
-                        return AnimatedSwitcher(
-                          duration: Duration(milliseconds: 250),
-                          child: Icon(
-                            value.visible
-                                ? Icons.clear
-                                : Icons.arrow_back_ios_sharp,
-                            size: 5.w,
-                            color: AppHelper.themelight
-                                ? Colors.white
-                                : Colors.black,
-                            key: ValueKey<bool>(value.visible),
-                          ),
-                        );
-                      },
-                    )),
-              ),
-              body: Obx(() {
-                return myController.myData.value.isNotEmpty
-                    ? Skeletonizer(
-                        enabled: !myController.datafound.value,
-                        enableSwitchAnimation: true,
-                        child: InkWell(
-                          onTap: () {},
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 0, right: 0, bottom: 6),
-                            child: Swiper(
-                              duration: 100,
-                              allowImplicitScrolling: true,
-                              axisDirection: AxisDirection.up,
-                              layout: SwiperLayout.STACK,
+                ),
+              ],
+              leading: IconButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      PageTransition(
+                        type: PageTransitionType.leftToRight,
+                        duration: Duration(milliseconds: 700),
+                        child:
+                            LeftScreen(), // Replace LeftScreen with your target screen
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.arrow_back_ios_sharp,
+                    size: 5.w,
+                    color: AppHelper.themelight ? Colors.white : Colors.black,
+                  )),
+            ),
+            body: Obx(() {
+              return Skeletonizer(
+                enabled: !myController.datafound.value,
+                // enableSwitchAnimation: true,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: Swiper(
+                    duration: 200,
+                    allowImplicitScrolling: true,
+                    axisDirection: AxisDirection.up,
+                    layout: SwiperLayout.STACK,
 
-                              customLayoutOption: CustomLayoutOption(
-                                  startIndex: -1, stateCount: 3)
-                                ..addRotate([-45.0 / 180, 0.0, 45.0 / 180])
-                                ..addTranslate([
-                                  Offset(-370.0, -40.0),
-                                  Offset(0.0, 0.0),
-                                  Offset(370.0, -40.0)
-                                ]),
-                              itemWidth: MediaQuery.of(context).size.width,
-                              itemHeight: MediaQuery.of(context).size.height,
-                              itemBuilder: (context, index) {
-                                var item = myController.myData[index];
-                                myController.isclick.value = false;
+                    customLayoutOption:
+                        CustomLayoutOption(startIndex: -1, stateCount: 3)
+                          ..addRotate([-45.0 / 180, 0.0, 45.0 / 180])
+                          ..addTranslate([
+                            Offset(-370.0, -40.0),
+                            Offset(0.0, 0.0),
+                            Offset(370.0, -40.0)
+                          ]),
+                    itemWidth: MediaQuery.of(context).size.width,
+                    itemHeight: MediaQuery.of(context).size.height,
+                    itemBuilder: (context, index) {
+                      var item = myController.myData[index];
 
-                                return InkWell(
-                                  onTap: ()
-                                   {
-                                    showSimpleSnackbar(context, item);
-                                  },
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                        left: 1, right: 1, bottom: 0),
-                                    child: Card(
-                                      elevation: 5,
-                                      color: AppHelper.themelight
-                                          ? Colors.black
-                                          : Colors.white,
-                                      child: Stack(
-                                        children: [
-                                          if (myController.internet.value)
-                                            item.img != ''
-                                                ? InkWell(
-                                                    onTap: () {
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                SingleImageView(item
-                                                                    .img
-                                                                    .toString())),
-                                                      );
-                                                    },
-                                                    child: Container(
-                                                        width: double.infinity,
-                                                        height: 28.h,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius.only(
-                                                            topLeft:
-                                                                Radius.circular(
-                                                                    12.0),
-                                                            topRight:
-                                                                Radius.circular(
-                                                                    12.0),
-                                                          ),
-                                                          color: Colors
-                                                              .transparent,
+                      return InkWell(
+                        onTap: () {
+                          showSimpleSnackbar(context, item);
+                        },
+                        child: Padding(
+                          padding:
+                              EdgeInsets.only(left: 1, right: 1, bottom: 0),
+                          child: Card(
+                              elevation: 5,
+                              color: AppHelper.themelight
+                                  ? Colors.black
+                                  : Colors.white,
+                              child: item.title != null
+                                  ? Stack(
+                                      children: [
+                                        if (myController.internet.value)
+                                          item.img != ''
+                                              ? InkWell(
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              SingleImageView(item
+                                                                  .img
+                                                                  .toString())),
+                                                    );
+                                                  },
+                                                  child: Container(
+                                                      width: double.infinity,
+                                                      height: 28.h,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  12.0),
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  12.0),
                                                         ),
-                                                        child: ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                          child:
-                                                              CachedNetworkImage(
-                                                            imageUrl: item.img,
-                                                            fit: BoxFit.fill,
-                                                            placeholder: (context,
-                                                                    url) =>
-                                                                SkeletonLoader(
-                                                              builder:
-                                                                  Container(
-                                                                width: double
-                                                                    .infinity,
-                                                                height: 28.h,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: Colors
-                                                                          .grey[
-                                                                      300],
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              8.0),
-                                                                ),
+                                                        color:
+                                                            Colors.transparent,
+                                                      ),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                        child:
+                                                            CachedNetworkImage(
+                                                          imageUrl: item.img,
+                                                          fit: BoxFit.fill,
+                                                          placeholder: (context,
+                                                                  url) =>
+                                                              SkeletonLoader(
+                                                            builder: Container(
+                                                              width: double
+                                                                  .infinity,
+                                                              height: 28.h,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors
+                                                                    .grey[300],
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8.0),
                                                               ),
                                                             ),
-                                                            // placeholder: (context,
-                                                            //         url) =>
-                                                            //     Center(
-                                                            //         child:
-                                                            //             new CircularProgressIndicator(
-                                                            //   color: AppColors
-                                                            //       .primarycolor,
-                                                            // )
-                                                            //),
-
-                                                            errorWidget:
-                                                                (context, url,
-                                                                        error) =>
-                                                                    Icon(Icons
-                                                                        .error),
                                                           ),
-                                                        )),
-                                                  )
-                                                : Container(
-                                                    width: double.infinity,
-                                                    height: 25.h,
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.only(
-                                                        topLeft:
-                                                            Radius.circular(
-                                                                12.0),
-                                                        topRight:
-                                                            Radius.circular(
-                                                                12.0),
-                                                      ),
-                                                      color: Colors.transparent,
-                                                    ),
-                                                    child: FlickVideoPlayer(
-                                                        flickManager:
-                                                            FlickManager(
-                                                      videoPlayerController:
-                                                          VideoPlayerController
-                                                              .network(
-                                                        item.video,
-                                                      ),
-                                                    )),
-                                                  ),
-                                          Positioned(
-                                            top: myController.internet.value
-                                                ? 28.h
-                                                : 5.h,
-                                            left: 0,
-                                            right: 0,
-                                            child: Container(
-                                                decoration: BoxDecoration(
-                                                    color: Colors.transparent,
+                                                          // placeholder: (context,
+                                                          //         url) =>
+                                                          //     Center(
+                                                          //         child:
+                                                          //             new CircularProgressIndicator(
+                                                          //   color: AppColors
+                                                          //       .primarycolor,
+                                                          // )
+                                                          //),
+
+                                                          errorWidget: (context,
+                                                                  url, error) =>
+                                                              Icon(Icons.error),
+                                                        ),
+                                                      )),
+                                                )
+                                              : Container(
+                                                  width: double.infinity,
+                                                  height: 25.h,
+                                                  decoration: BoxDecoration(
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            15)),
-                                                padding: EdgeInsets.only(
-                                                    top: 1.h,
-                                                    left: 2.w,
-                                                    right: 2.w,
-                                                    bottom: 1),
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(item.title,
-                                                        maxLines: 10,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
+                                                        BorderRadius.only(
+                                                      topLeft:
+                                                          Radius.circular(12.0),
+                                                      topRight:
+                                                          Radius.circular(12.0),
+                                                    ),
+                                                    color: Colors.transparent,
+                                                  ),
+                                                  child: FlickVideoPlayer(
+                                                      flickManager:
+                                                          FlickManager(
+                                                    videoPlayerController:
+                                                        VideoPlayerController
+                                                            .network(
+                                                      item.video,
+                                                    ),
+                                                  )),
+                                                ),
+                                        Positioned(
+                                          top: myController.internet.value
+                                              ? 28.h
+                                              : 5.h,
+                                          left: 0,
+                                          right: 0,
+                                          child: Container(
+                                              decoration: BoxDecoration(
+                                                  color: Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          15)),
+                                              padding: EdgeInsets.only(
+                                                  top: 1.h,
+                                                  left: 2.w,
+                                                  right: 2.w,
+                                                  bottom: 1),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(item.title,
+                                                      maxLines: 10,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: AppHelper
+                                                              .themelight
+                                                          ? AppStyle
+                                                              .heading_white
+                                                          : AppStyle
+                                                              .heading_black),
+                                                  SizedBox(
+                                                    height: 0.5.h,
+                                                  ),
+                                                  Container(
+                                                    //  height: 35.h,
+                                                    child: Text(
+                                                        item.description,
                                                         style: AppHelper
                                                                 .themelight
                                                             ? AppStyle
-                                                                .heading_white
+                                                                .bodytext_white
                                                             : AppStyle
-                                                                .heading_black),
-                                                    SizedBox(
-                                                      height: 0.5.h,
-                                                    ),
-                                                    Container(
-                                                      //  height: 35.h,
-                                                      child: Text(
-                                                          item.description,
-                                                          style: AppHelper
-                                                                  .themelight
-                                                              ? AppStyle
-                                                                  .bodytext_white
-                                                              : AppStyle
-                                                                  .bodytext_black),
-                                                    ),
-                                                    SizedBox(
-                                                      height: 1.h,
-                                                    ),
-                                                    Text(
-                                                      "Crips from ${item.from} / ${timeago.format(DateTime.parse(item.created_date.split(" ").first))} by ${item.takenby} " ??
-                                                          "",
-                                                      maxLines: 1,
-                                                      style: TextStyle(
-                                                          color: AppHelper
-                                                                  .themelight
-                                                              ? Colors.white38
-                                                              : Colors.black
-                                                                  .withOpacity(
-                                                                  0.3,
-                                                                ),
-                                                          fontSize: 10),
-                                                    ),
-                                                  ],
-                                                )),
-                                          ),
-                                          Positioned(
-                                            top: myController.internet.value
-                                                ? 22.h
-                                                : 2.h,
-                                            right: 0,
-                                            // top: 25.h,
-                                            child: Container(
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 10,
-                                                        vertical: 10),
-                                                child: !isplay
-                                                    ? InkWell(
-                                                        onTap: () {
-                                                          _speak(item.title +
-                                                              item.description);
-                                                          setState(() {
-                                                            isplay = true;
-                                                          });
-                                                        },
-                                                        child: Icon(
-                                                          Icons
-                                                              .play_circle_fill_outlined,
-                                                          color: Colors.white,
-                                                        ))
-                                                    : InkWell(
-                                                        onTap: () {
-                                                          _stop();
-                                                          setState(() {
-                                                            isplay = false;
-                                                          });
-                                                        },
-                                                        child: Icon(
-                                                          Icons
-                                                              .play_circle_outline_outlined,
-                                                          color: Colors.green,
-                                                        )),
-                                              ),
+                                                                .bodytext_black),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 1.h,
+                                                  ),
+                                                  Text(
+                                                    "Crips from ${item.from} / ${timeago.format(DateTime.parse(item.created_date.split(" ").first))} by ${item.takenby} " ??
+                                                        "",
+                                                    maxLines: 1,
+                                                    style: TextStyle(
+                                                        color: AppHelper
+                                                                .themelight
+                                                            ? Colors.white38
+                                                            : Colors.black
+                                                                .withOpacity(
+                                                                0.3,
+                                                              ),
+                                                        fontSize: 10),
+                                                  ),
+                                                ],
+                                              )),
+                                        ),
+                                        Positioned(
+                                          top: myController.internet.value
+                                              ? 22.h
+                                              : 2.h,
+                                          right: 0,
+                                          // top: 25.h,
+                                          child: Container(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 10),
+                                              child: !isplay
+                                                  ? InkWell(
+                                                      onTap: () {
+                                                        _speak(item.title +
+                                                            item.description);
+                                                        setState(() {
+                                                          isplay = true;
+                                                        });
+                                                      },
+                                                      child: Icon(
+                                                        Icons
+                                                            .play_circle_fill_outlined,
+                                                        color: Colors.white,
+                                                      ))
+                                                  : InkWell(
+                                                      onTap: () {
+                                                        _stop();
+                                                        setState(() {
+                                                          isplay = false;
+                                                        });
+                                                      },
+                                                      child: Icon(
+                                                        Icons
+                                                            .play_circle_outline_outlined,
+                                                        color: Colors.green,
+                                                      )),
                                             ),
                                           ),
-                                          Positioned(
-                                            right: 0,
-                                            child: Container(
-                                                height: 2.5.h,
-                                                width: 20.w,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(7.0),
-                                                    topRight:
-                                                        Radius.circular(1.0),
-                                                    bottomRight:
-                                                        Radius.circular(7.0),
-                                                  ),
+                                        ),
+                                        Positioned(
+                                          right: 0,
+                                          child: Container(
+                                              height: 2.5.h,
+                                              width: 20.w,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.only(
+                                                  topLeft: Radius.circular(7.0),
+                                                  topRight:
+                                                      Radius.circular(1.0),
+                                                  bottomRight:
+                                                      Radius.circular(7.0),
                                                 ),
-                                                padding: EdgeInsets.all(1),
-                                                child: Text(
-                                                  // "ShorTnews",
-                                                  Languages.of(context)!
-                                                      .appName,
-                                                  style: TextStyle(
-                                                      color: Colors.black),
-                                                )),
-                                          ),
-                                          Positioned(
-                                            left: 0,
-                                            right: 15,
-                                            bottom: 0,
-                                            child: InkWell(
-                                              onTap: () {
-                                                _launchUrl(
-                                                    Uri.parse(item.news_link));
-                                              },
-                                              child: item.img != ""
-                                                  ? ClipPath(
-                                                      clipper:
-                                                          BottomRoundedClipper(
-                                                              radius: 12.0),
-                                                      child: BackdropFilter(
-                                                        filter:
-                                                            ImageFilter.blur(
-                                                                sigmaX: 1000.0,
-                                                                sigmaY: 1000.0),
-                                                        child: Container(
-                                                          height: 6.h,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            borderRadius:
-                                                                const BorderRadius
-                                                                    .only(
-                                                              bottomLeft: Radius
-                                                                  .circular(
-                                                                      12.0),
-                                                              topRight: Radius
-                                                                  .circular(
-                                                                      12.0),
-                                                              bottomRight:
-                                                                  Radius
-                                                                      .circular(
-                                                                          12.0),
-                                                              topLeft: Radius
-                                                                  .circular(
-                                                                      12.0),
-                                                            ),
-                                                            image:
-                                                                DecorationImage(
-                                                              image: item.img !=
-                                                                      ""
-                                                                  ? NetworkImage(
-                                                                      item.img)
-                                                                  : NetworkImage(
-                                                                      ""),
-                                                              fit: BoxFit.cover,
-                                                            ),
-                                                          ),
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                  5.0),
-                                                          child: BackdropFilter(
-                                                            filter: ImageFilter
-                                                                .blur(
-                                                                    sigmaX:
-                                                                        20.0,
-                                                                    sigmaY:
-                                                                        20.0),
-                                                            child: Row(
-                                                              children: [
-                                                                Container(
-                                                                  width: 80.w,
-                                                                  child: Text(
-                                                                      "${item.title}",
-                                                                      maxLines:
-                                                                          1,
-                                                                      overflow:
-                                                                          TextOverflow
-                                                                              .ellipsis,
-                                                                      style: AppHelper.themelight
-                                                                          ? AppStyle
-                                                                              .bodytext_white
-                                                                          : AppStyle
-                                                                              .bodytext_black),
-                                                                ),
-                                                                Spacer(),
-                                                                Image.asset(
-                                                                  "assets/images/Animation.gif",
-                                                                  height: 10.0,
-                                                                  width: 20.0,
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    )
-                                                  : Container(
-                                                      decoration: BoxDecoration(
+                                              ),
+                                              padding: EdgeInsets.all(1),
+                                              child: Text(
+                                                // "ShorTnews",
+                                                Languages.of(context)!.appName,
+                                                style: TextStyle(
+                                                    color: Colors.black),
+                                              )),
+                                        ),
+                                        Positioned(
+                                          left: 0,
+                                          right: 0,
+                                          bottom: 0,
+                                          child: InkWell(
+                                            onTap: () {
+                                              _launchUrl(
+                                                  Uri.parse(item.news_link));
+                                            },
+                                            child: item.img != ""
+                                                ? ClipPath(
+                                                    clipper:
+                                                        BottomRoundedClipper(
+                                                            radius: 12.0),
+                                                    child: BackdropFilter(
+                                                      filter: ImageFilter.blur(
+                                                          sigmaX: 1000.0,
+                                                          sigmaY: 1000.0),
+                                                      child: Container(
+                                                        height: 6.h,
+                                                        decoration:
+                                                            BoxDecoration(
                                                           borderRadius:
-                                                              BorderRadius.only(
+                                                              const BorderRadius
+                                                                  .only(
                                                             bottomLeft:
                                                                 Radius.circular(
                                                                     12.0),
-                                                            topRight:
-                                                                Radius.circular(
-                                                                    12.0),
+                                                            // topRight:
+                                                            //     Radius.circular(
+                                                            //         12.0),
                                                             bottomRight:
                                                                 Radius.circular(
                                                                     12.0),
-                                                            topLeft:
-                                                                Radius.circular(
-                                                                    12.0),
+                                                            // topLeft:
+                                                            //     Radius.circular(
+                                                            //         12.0),
                                                           ),
-                                                          color:
-                                                              Colors.black26),
-                                                      padding:
-                                                          EdgeInsets.all(20.0),
-                                                      child: Row(
-                                                        children: [
-                                                          Container(
-                                                            width: 80.w,
-                                                            child: Text(
-                                                              "${item.title}",
-                                                              maxLines: 1,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              style: AppHelper
-                                                                      .themelight
-                                                                  ? AppStyle
-                                                                      .bodytext_black
-                                                                  : AppStyle
-                                                                      .bodytext_white,
-                                                            ),
+                                                          image:
+                                                              DecorationImage(
+                                                            image: item.img !=
+                                                                    ""
+                                                                ? NetworkImage(
+                                                                    item.img)
+                                                                : NetworkImage(
+                                                                    ""),
+                                                            fit: BoxFit.cover,
                                                           ),
-                                                          Spacer(),
-                                                          Image.asset(
-                                                            "assets/images/Animation.gif",
-                                                            height: 20.0,
-                                                            width: 20.0,
+                                                        ),
+                                                        padding:
+                                                            EdgeInsets.all(5.0),
+                                                        child: BackdropFilter(
+                                                          filter:
+                                                              ImageFilter.blur(
+                                                                  sigmaX: 20.0,
+                                                                  sigmaY: 20.0),
+                                                          child: Row(
+                                                            children: [
+                                                              Container(
+                                                                width: 80.w,
+                                                                child: Text(
+                                                                    "${item.title}",
+                                                                    maxLines: 1,
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis,
+                                                                    style: AppHelper.themelight
+                                                                        ? AppStyle
+                                                                            .bodytext_white
+                                                                        : AppStyle
+                                                                            .bodytext_black),
+                                                              ),
+                                                              Spacer(),
+                                                              Image.asset(
+                                                                "assets/images/Animation.gif",
+                                                                height: 10.0,
+                                                                width: 20.0,
+                                                              ),
+                                                            ],
                                                           ),
-                                                        ],
+                                                        ),
                                                       ),
                                                     ),
+                                                  )
+                                                : Container(
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                  12.0),
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  12.0),
+                                                          bottomRight:
+                                                              Radius.circular(
+                                                                  12.0),
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  12.0),
+                                                        ),
+                                                        color: Colors.black26),
+                                                    padding:
+                                                        EdgeInsets.all(20.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Container(
+                                                          width: 80.w,
+                                                          child: Text(
+                                                            "${item.title}",
+                                                            maxLines: 1,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style: AppHelper
+                                                                    .themelight
+                                                                ? AppStyle
+                                                                    .bodytext_black
+                                                                : AppStyle
+                                                                    .bodytext_white,
+                                                          ),
+                                                        ),
+                                                        Spacer(),
+                                                        Image.asset(
+                                                          "assets/images/Animation.gif",
+                                                          height: 20.0,
+                                                          width: 20.0,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: CachedNetworkImage(
+                                        imageUrl: item.img,
+                                        fit: BoxFit.fill,
+                                        placeholder: (context, url) =>
+                                            SkeletonLoader(
+                                          builder: Container(
+                                            width: double.infinity,
+                                            height: 28.h,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[300],
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
                                             ),
                                           ),
-                                        ],
+                                        ),
+                                        // placeholder: (context,
+                                        //         url) =>
+                                        //     Center(
+                                        //         child:
+                                        //             new CircularProgressIndicator(
+                                        //   color: AppColors
+                                        //       .primarycolor,
+                                        // )
+                                        //),
+
+                                        errorWidget: (context, url, error) =>
+                                            Icon(Icons.error),
                                       ),
-                                    ),
-                                  ),
-                                );
-                              },
-                              // autoplay: false,
-                              itemCount: myController.myData.length,
-                              scrollDirection: Axis.vertical,
-
-                              onIndexChanged: (int index) {
-                                _stop();
-                                setState(() {
-                                  isplay = false;
-                                });
-
-                                if (index == myController.myData.length - 1) {
-                                  myController.loadmoredatas();
-                                }
-                              },
-
-                              //control: const SwiperControl(),
-                            ),
-                          ),
-                        ),
-                      )
-                    : Center(
-                        child: Text(
-                          'Data not found',
-                          style: TextStyle(color: Colors.black),
+                                    )),
                         ),
                       );
-              }
-                  // }
+                    },
+                    // autoplay: false,
+                    itemCount: myController.myData.length,
+                    scrollDirection: Axis.vertical,
+
+                    onIndexChanged: (int index) {
+                      _stop();
+                      setState(() {
+                        isplay = false;
+                      });
+
+                      if (index == myController.myData.length - 1) {
+                        myController.loadmoredatas();
+                      }
+                    },
+
+                    //control: const SwiperControl(),
                   ),
-            ),
-          ));
-    });
+                ),
+              );
+            }
+                // }
+                ),
+          ),
+        ));
   }
 
   setupRemoteConfig() async {
@@ -806,16 +786,17 @@ class _DashBoardScreenState extends State<DashBoardScreenActivity> {
     await remoteConfig.fetch();
     await remoteConfig.activate();
     print(
-        "kjdhgfkbkdfg  ${remoteConfig.getValue(AppStringFile.appUpdate).asBool()}  ${remoteConfig.getValue(AppStringFile.Version).asString()}");
+        "check version  ${remoteConfig.getValue(AppStringFile.appUpdate).asBool()}  ${remoteConfig.getValue(AppStringFile.Version).asString()}   ${remoteConfig.getValue(AppStringFile.forceFully).asBool()}");
     if (remoteConfig.getValue(AppStringFile.appUpdate).asBool()) {
-      if (version != remoteConfig.getValue(AppStringFile.Version).asString() &&
-          remoteConfig.getValue(AppStringFile.forceFully).asBool()) {
-        _forceFullyupdate(remoteConfig.getString(AppStringFile.updateUrl),
+      if (version != remoteConfig.getValue(AppStringFile.Version).asString()) {
+        _update(remoteConfig.getString(AppStringFile.updateUrl),
             remoteConfig.getString(AppStringFile.updateMessage));
         return;
       }
-      if (version != remoteConfig.getValue(AppStringFile.Version).asString()) {
-        _update(remoteConfig.getString(AppStringFile.updateUrl),
+    } else if (remoteConfig.getValue(AppStringFile.forceFully).asBool()) {
+      if (version != remoteConfig.getValue(AppStringFile.Version).asString() &&
+          remoteConfig.getValue(AppStringFile.forceFully).asBool()) {
+        _forceFullyupdate(remoteConfig.getString(AppStringFile.updateUrl),
             remoteConfig.getString(AppStringFile.updateMessage));
         return;
       }
